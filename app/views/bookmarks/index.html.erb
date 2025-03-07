@@ -1,4 +1,63 @@
+<!-- app/views/bookmarks/index.html.erb -->
 <div>
-  <h1 class="font-bold text-4xl">Bookmarks#index</h1>
-  <p>Find me in app/views/bookmarks/index.html.erb</p>
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">Bookmarks</h1>
+    <% if current_user %>
+      <%= link_to "Add New Bookmark", new_bookmark_path, class: "px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700" %>
+    <% end %>
+  </div>
+
+  <% if @bookmarks.empty? %>
+    <div class="text-center py-10">
+      <p class="text-gray-500 mb-4">No bookmarks yet!</p>
+      <% if current_user %>
+        <%= link_to "Add your first bookmark", new_bookmark_path, class: "px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700" %>
+      <% else %>
+        <%= link_to "Sign up to add bookmarks", signup_path, class: "px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700" %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @bookmarks.each do |bookmark| %>
+        <div class="bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition">
+          <div class="p-4">
+            <div class="flex justify-between items-start">
+              <h2 class="text-xl font-semibold mb-2 text-indigo-900 truncate">
+                <%= link_to bookmark.title, bookmark, class: "hover:text-indigo-700" %>
+              </h2>
+              <% if bookmark.private? %>
+                <span class="bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded">Private</span>
+              <% end %>
+            </div>
+            
+            <a href="<%= bookmark.url %>" target="_blank" class="text-blue-600 hover:underline text-sm block truncate mb-3">
+              <%= bookmark.url %>
+            </a>
+            
+            <% if bookmark.description.present? %>
+              <p class="text-gray-700 mb-4 line-clamp-2"><%= bookmark.description %></p>
+            <% end %>
+            
+            <div class="flex flex-wrap gap-1 mb-3">
+              <% bookmark.tags.each do |tag| %>
+                <%= link_to tag.name, tag_path(tag), class: "text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded" %>
+              <% end %>
+            </div>
+            
+            <div class="flex justify-between items-center text-sm text-gray-500">
+              <span>By <%= bookmark.user.username %></span>
+              <span><%= time_ago_in_words(bookmark.created_at) %> ago</span>
+            </div>
+            
+            <% if bookmark.user == current_user %>
+              <div class="mt-3 space-x-2 text-sm">
+                <%= link_to "Edit", edit_bookmark_path(bookmark), class: "text-indigo-600 hover:text-indigo-800" %>
+                <%= button_to "Delete", bookmark_path(bookmark), method: :delete, data: { confirm: "Are you sure?" }, class: "text-red-600 hover:text-red-800 bg-transparent border-none p-0 cursor-pointer" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
 </div>
